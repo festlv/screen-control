@@ -1,5 +1,16 @@
-#include "rti.h"
 #include <Arduino.h>
+
+
+#include "rti.h"
+#include "pins.h"
+
+
+SoftwareSerial rti_serial(RTI_SERIAL_RX, RTI_SERIAL_TX, true); 
+
+int current_display_mode = RTI_PAL;
+bool send_brightness = true;
+char current_brightness_level = 7;
+
 
 void rti_setup() {
 	rti_serial.begin(2400);
