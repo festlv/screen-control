@@ -17,7 +17,7 @@ For more information see: http://translate.googleusercontent.com/translate_c?dep
 */
 
 
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 
 
 
@@ -32,7 +32,7 @@ extern char current_brightness_level;
 extern bool send_brightness;
 
 //delay between bytes, ms
-const int rti_delay = 10;
+const int rti_delay = 100;
 void rti_setup();
 //should be called in execution loop
 void rti_loop();
@@ -42,5 +42,7 @@ void rti_set_brightness(char level);
 void rti_disable_screen();
 
 void rti_enable_screen();
+
+void rti_bitbang_tx(char byte_to_tx);
 
 #endif

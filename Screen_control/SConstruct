@@ -68,7 +68,7 @@ else:
     ARDUINO_HOME_DEFAULT = '/usr/share/arduino/' #'/home/YOU/apps/arduino-00XX/'
     ARDUINO_PORT_DEFAULT = getUsbTty('/dev/ttyUSB*')
     AVR_BIN_PREFIX = 'avr-'
-    SKETCHBOOK_HOME_DEFAULT = os.path.realpath('~/share/arduino/sketchbook/')
+    SKETCHBOOK_HOME_DEFAULT = os.path.expanduser('~/share/arduino/sketchbook/')
 
 ARDUINO_BOARD_DEFAULT = os.environ.get('ARDUINO_BOARD', 'atmega328')
 
@@ -234,25 +234,33 @@ gatherSources = lambda x: glob(pathJoin(x, '*.c'))+\
         glob(pathJoin(x, '*.cpp'))+\
         glob(pathJoin(x, '*.S'))
 
+gatherAllSources = lambda x: glob(pathJoin(x, '*.c'))+\
+        glob(pathJoin(x, '*.cpp'))+glob(pathJoin(x, '*.h'))+\
+        glob(pathJoin(x, '*.S'))
+
 # add arduino core sources
 VariantDir('build/core', ARDUINO_CORE)
 core_sources = gatherSources(ARDUINO_CORE)
 core_sources = filter(lambda x: not (os.path.basename(x) == 'main.cpp'), core_sources)
 core_sources = map(lambda x: x.replace(ARDUINO_CORE, 'build/core/'), core_sources)
 
+build_top = os.path.realpath('.')
+
 # add libraries
 libCandidates = []
 ptnLib = re.compile(r'^[ ]*#[ ]*include [<"](.*)\.h[>"]')
-for line in open (TARGET+FILE_EXTENSION):
-    result = ptnLib.findall(line)
-    if result:
-        # Look for the library directory that contains the header.
-        filename=result[0]+'.h'
-        for libdir in ARDUINO_LIBS:
-            for root, dirs, files in os.walk(libdir, followlinks=True):
-                for f in files:
-                    if f == filename:
-                        libCandidates += [os.path.basename(root)]
+search_includes = gatherAllSources(build_top) + [TARGET+FILE_EXTENSION,]
+for search_file in search_includes:
+    for line in open (search_file):
+        result = ptnLib.findall(line)
+        if result:
+            # Look for the library directory that contains the header.
+            filename=result[0]+'.h'
+            for libdir in ARDUINO_LIBS:
+                for root, dirs, files in os.walk(libdir, followlinks=True):
+                    for f in files:
+                        if f == filename:
+                            libCandidates += [os.path.basename(root)]
 
 # Hack. In version 20 of the Arduino IDE, the Ethernet library depends
 # implicitly on the SPI library.
@@ -280,7 +288,7 @@ for orig_lib_dir in ARDUINO_LIBS:
     index += 1
 
 # Add raw sources which live in sketch dir.
-build_top = os.path.realpath('.')
+
 VariantDir('build/local/', build_top)
 local_sources = gatherSources(build_top)
 local_sources = map(lambda x: x.replace(build_top, 'build/local/'), local_sources)
