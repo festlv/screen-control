@@ -6,8 +6,8 @@
 
 
 int current_display_mode = RTI_PAL;
-bool send_brightness = false;
-char current_brightness_level = 7;
+bool send_brightness = true;
+char current_brightness_level = 15;
 
 const int rti_bit_delay = 410;
 

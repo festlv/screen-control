@@ -12,5 +12,7 @@ const uint8_t MELBUS_CLOCK_INT = 1;//pin 3
 const uint8_t MELBUS_DATA = 7;
 const uint8_t MELBUS_BUSY = 5;
 
+const uint8_t CANBUS_CS_PIN = 10;
+
 
 #endif
